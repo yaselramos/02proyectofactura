@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/productos")
@@ -20,7 +21,6 @@ public class ProductoController {
 
     @PostMapping
     public ResponseEntity<ProductoDTO> createProducto(@RequestBody ProductoDTO productoDTO){
-        log.info("Creando producto: {}", productoDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(productoService.save(productoDTO));
     }
     @GetMapping
@@ -32,13 +32,9 @@ public class ProductoController {
     }
     @GetMapping("/{id}")
     public ResponseEntity<ProductoDTO> getProductoById(@PathVariable Long id) {
-        try {
-            productoService.getById(id);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(productoService.getById(id));
+        return productoService.getById(id)
+                .map(producto -> ResponseEntity.ok(producto))
+                .orElse(ResponseEntity.notFound().build());
     }
     @PutMapping("/{id}")
     public ProductoDTO updateProducto(@PathVariable Long id, @RequestBody ProductoDTO productoDTO) {

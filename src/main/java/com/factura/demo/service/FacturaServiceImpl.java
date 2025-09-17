@@ -44,9 +44,11 @@ public class FacturaServiceImpl implements FacturaService{
                 .map(factura -> modelMapper.map(factura, ResponseFacturaDTO.class));
     }
     public void deleteFacturaById(Long id) {
-        facturaRepository.deleteById(id);
+     Optional<Factura> obj=   facturaRepository.findById(id);
+     if (obj.isPresent())
+         facturaRepository.deleteById(id);
     }
-@Transactional
+    @Transactional
     public ResponseFacturaDTO saveFactura(RequestFacturaDTO requestFacturaDTO) {
         Factura factura = modelMapper.map(requestFacturaDTO, Factura.class);
         BigDecimal subtotalfactura=BigDecimal.ZERO;
@@ -73,4 +75,5 @@ public class FacturaServiceImpl implements FacturaService{
         Factura savedFactura = facturaRepository.save(factura);
         return modelMapper.map(savedFactura, ResponseFacturaDTO.class);
     }
+
 }
