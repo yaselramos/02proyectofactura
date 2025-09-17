@@ -35,18 +35,30 @@ public class ProductoServiceImpl implements ProductoService{
     }
 
     @Override
-    public ProductoDTO getById(Long id) {
-        return modelMapper.map(productoRepository.findById(id).orElseThrow(), ProductoDTO.class);
+    public Optional<ProductoDTO> getById(Long id) {
+        Optional<Producto> producto=productoRepository.findById(id);
+        if (producto.isPresent()){
+            return Optional.of(modelMapper.map(producto.orElseThrow(), ProductoDTO.class));
+        }
+     return Optional.empty();
     }
 
     @Override
     public ProductoDTO update(Long id, ProductoDTO productoDTO) {
-        return modelMapper.map(productoRepository.findById(id).map(obj ->{
-            obj.setNombre(productoDTO.getNombre());
-            obj.setPrecio(productoDTO.getPrecio());
-            obj.setDetalle(productoDTO.getDetalle());
-            return productoRepository.save(obj);
-        }),ProductoDTO.class);
+
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto not found"));
+        producto.setNombre(productoDTO.getNombre());
+        producto.setPrecio(productoDTO.getPrecio());
+        producto.setDetalle(productoDTO.getDetalle());
+        Producto updatedProducto = productoRepository.save(producto);
+       return modelMapper.map(updatedProducto, ProductoDTO.class);
+//        return modelMapper.map(productoRepository.findById(id).map(obj ->{
+//            obj.setNombre(productoDTO.getNombre());
+//            obj.setPrecio(productoDTO.getPrecio());
+//            obj.setDetalle(productoDTO.getDetalle());
+//            return productoRepository.save(obj);
+//        }),ProductoDTO.class);
 
 
     }
